@@ -13,17 +13,32 @@ public class Product {
     private Long id;
 
     private String name;
+
+    @Column(length = 1000)
     private String description;
 
     @ElementCollection
     private List<String> images = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_features",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "feature_id")
+    )
+    private List<Feature> features = new ArrayList<>();
+
     public Product() {}
 
-    public Product(String name, String description, List<String> images) {
+    public Product(String name, String description, List<String> images, Category category) {
         this.name = name;
         this.description = description;
         this.images = images;
+        this.category = category;
     }
 
     public Long getId() { return id; }
@@ -37,4 +52,10 @@ public class Product {
 
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }
+
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
+
+    public List<Feature> getFeatures() { return features; }
+    public void setFeatures(List<Feature> features) { this.features = features; }
 }

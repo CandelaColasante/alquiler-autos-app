@@ -32,3 +32,21 @@ Desarrollar una aplicación web que permita:
 - Como administrador quiero agregar nuevos autos, visualizar el listado de todos los autos disponibles y eliminarlos. ✅
 - Como usuario quiero ver recomendaciones aleatorias de autos. ✅
 - Como usuario quiero ver el detalle de cada auto. ✅
+
+## Sprint 2 - Gestión de Usuarios y Catálogo Avanzado
+
+### Historias de usuario completadas:
+- Como administrador quiero poder asignar categorías a productos ya creados.
+- Como usuario anónimo quiero poder registrarme en el sitio web para poder acceder a funcionalidades extras. ✅
+- Como usuario autenticado quiero poder iniciar sesión para poder gestionar mis reservas, y cerrar sesión de manera segura. ✅
+- Como administrador quiero poder otorgar o quitar a un usuario el rol de administrador para acceder a las funcionalidades únicas de ese rol. ✅
+- Como administrador quiero poder añadir, editar y eliminar características de un producto, asignandoles un icono a cada una de ellas. ✅
+- Como usuario quiero poder visualizar todas las características de un producto. ✅
+- Como administrador quiero poder añadir, editar y eliminar categorías de un producto. ✅
+- Como administrador quiero poder crear nuevas categorias con titulo, descripción e imagen. ✅
+- Como usuario quiero poder filtrar los productos por categoría. ✅
+
+### Mejoras técnicas respecto al Sprint 1:
+- Incorporación de DTOs: Se implementaron DTOs (Data Transfer Objects) para controlar qué información
+se expone en las respuestas de la API, mejorando la seguridad y evitando enviar datos sensible como la
+contraseña del usuario.

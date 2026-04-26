@@ -46,7 +46,7 @@ function Admin({ loadProducts }) {
     return (
       <div className="main-with-padding">
         <div className="admin-mobile-message">
-          <h2>📱 Acceso no disponible</h2>
+          <h2>Acceso no disponible</h2>
           <p>El panel de administración solo está disponible en dispositivos de escritorio.</p>
           <button onClick={() => navigate("/")} className="btn-back">Volver al inicio</button>
         </div>
@@ -58,8 +58,16 @@ function Admin({ loadProducts }) {
     <div className="main-with-padding">
       <div className="admin-panel">
         <h1>Panel de Administración</h1>
-
         <div className="admin-buttons">
+          <button className="btn-admin-users" onClick={() => navigate("/admin/usuarios")}>
+            Gestionar Usuarios
+          </button>
+          <button className="btn-admin-categories" onClick={() => navigate("/admin/categorias")}>
+            Administrar Categorías
+          </button>
+          <button className="btn-admin-features" onClick={() => navigate("/admin/caracteristicas")}>
+            Administrar Características
+          </button>
           <button className="btn-admin-add" onClick={() => navigate("/add-product")}>
             Agregar Producto
           </button>
@@ -99,6 +107,12 @@ function Admin({ loadProducts }) {
                         >
                           Ver
                         </button>
+                        <button 
+                         className="admin-edit-btn" 
+                         onClick={() => navigate(`/edit-product/${product.id}`)}
+                       >
+                         Editar
+                       </button>
                         <button className="admin-delete-btn" onClick={() => handleDelete(product.id, product.name)}>
                           Eliminar
                         </button>

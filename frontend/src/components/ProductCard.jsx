@@ -1,30 +1,28 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 function ProductCard({ product }) {
-  const navigate = useNavigate();
-
-  const getImageUrl = () => {
-    if (product.images && product.images.length > 0) {
-      return `http://localhost:8080/uploads/${product.images[0]}`;
-    }
-    return "http://placehold.com/600x400";
-  };
+  // Ya no necesitamos transformar porque api.js ya lo hizo
+  const imageUrl = product.images && product.images.length > 0 
+    ? product.images[0] 
+    : 'https://via.placeholder.com/180x180?text=Sin+imagen';
 
   return (
-    <div 
-      className='product-card'
-      onClick={() => navigate(`/product/${product.id}`)}
-      style={{ cursor: 'pointer' }}
-    >
+    <div className="product-card" onClick={() => window.location.href = `/producto/${product.id}`}>
       <img 
-        src={getImageUrl()} 
-        alt={product.name}
-        className="product-card-image" 
+        src={imageUrl} 
+        alt={product.name} 
+        className="product-card-image"
+        onError={(e) => {
+          console.error('Error cargando imagen:', imageUrl);
+          e.target.src = 'https://via.placeholder.com/180x180?text=Error';
+        }}
       />
-      <div className='product-info'>  
+      <div className="product-info">
         <h3>{product.name}</h3>
-        <p>{product.description}</p>
-        <small>{product.images?.length || 0} imagen(es)</small>
+        {product.category && (
+          <small>{product.category.name}</small>
+        )}
+        <p>{product.description?.substring(0, 80)}...</p>
       </div>
     </div>
   );
