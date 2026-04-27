@@ -6,7 +6,7 @@
 - Ubicación: `frontend/src/assets/readytogo-logo.png`.
 - Uso: Header de la aplicación.
 
-![Logo READY 2 GO](.imagenes/logo-paleta-colores.png)
+![Logo READY 2 GO](./imagenes/logo-paleta-colores.png)
 
 ## Paleta de colores
 - Color: Azul oscuro, Código Hex: #424790, Uso en la app: header, footer, titulos, botones secundarios, paginación.

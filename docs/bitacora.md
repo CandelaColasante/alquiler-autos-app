@@ -36,7 +36,7 @@ Desarrollar una aplicación web que permita:
 ## Sprint 2 - Gestión de Usuarios y Catálogo Avanzado
 
 ### Historias de usuario completadas:
-- Como administrador quiero poder asignar categorías a productos ya creados.
+- Como administrador quiero poder asignar categorías a productos ya creados. ✅
 - Como usuario anónimo quiero poder registrarme en el sitio web para poder acceder a funcionalidades extras. ✅
 - Como usuario autenticado quiero poder iniciar sesión para poder gestionar mis reservas, y cerrar sesión de manera segura. ✅
 - Como administrador quiero poder otorgar o quitar a un usuario el rol de administrador para acceder a las funcionalidades únicas de ese rol. ✅
