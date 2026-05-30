@@ -1,9 +1,11 @@
 package com.alquiler.autos.service;
 
+import com.alquiler.autos.dto.LoginResponseDTO;
 import com.alquiler.autos.dto.UserRegisterDTO;
 import com.alquiler.autos.model.User;
 import com.alquiler.autos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public User registerUser(UserRegisterDTO registerDTO) {
 
@@ -24,21 +29,27 @@ public class UserService {
         user.setFirstName(registerDTO.getFirstName());
         user.setLastName(registerDTO.getLastName());
         user.setEmail(registerDTO.getEmail());
-        user.setPassword(registerDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setRole("USER");
 
         return userRepository.save(user);
     }
 
-    public User loginUser(String email, String password) {
+    public LoginResponseDTO loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email o contraseña incorrectos"));
 
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Email o contraseña incorrectos");
         }
 
-        return user;
+        return new LoginResponseDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 
     public List<User> getAllUsers() {

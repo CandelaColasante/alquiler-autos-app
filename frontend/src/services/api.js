@@ -200,11 +200,14 @@ export const createCategory = async (categoryData) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(categoryData)
         });
+        
+        const data = await response.json();
+        
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || "Error al crear categoría");
+            const errorMessage = data.message || data.error || "Error al crear categoría";
+            throw new Error(errorMessage);
         }
-        return await response.json();
+        return data;
     } catch (error) {
         console.error('Error en createCategory:', error);
         throw error;
@@ -218,11 +221,14 @@ export const updateCategory = async (id, categoryData) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(categoryData)
         });
+        
+        const data = await response.json();
+        
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || "Error al actualizar categoría");
+            const errorMessage = data.message || data.error || "Error al actualizar categoría";
+            throw new Error(errorMessage);
         }
-        return await response.json();
+        return data;
     } catch (error) {
         console.error('Error en updateCategory:', error);
         throw error;
@@ -234,11 +240,14 @@ export const deleteCategory = async (id) => {
         const response = await fetch(`${API_URL}/api/categories/${id}`, {
             method: 'DELETE'
         });
+        
+        const data = await response.json();
+        
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || "Error al eliminar categoría");
+            const errorMessage = data.message || data.error || "Error al eliminar categoría";
+            throw new Error(errorMessage);
         }
-        return await response.json();
+        return data;
     } catch (error) {
         console.error('Error en deleteCategory:', error);
         throw error;

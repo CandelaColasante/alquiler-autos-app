@@ -1,6 +1,8 @@
 package com.alquiler.autos.service;
 
 import com.alquiler.autos.dto.CategoryDTO;
+import com.alquiler.autos.exception.DuplicateResourceException;
+import com.alquiler.autos.exception.ResourceNotFoundException;
 import com.alquiler.autos.model.Category;
 import com.alquiler.autos.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +26,13 @@ public class CategoryService {
 
     public CategoryDTO getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
         return convertToDTO(category);
     }
 
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         if (categoryRepository.existsByName(categoryDTO.getName())) {
-            throw new RuntimeException("Ya existe una categoría con ese nombre");
+            throw new DuplicateResourceException("Categoría", categoryDTO.getName());
         }
 
         Category category = convertToEntity(categoryDTO);
@@ -40,7 +42,7 @@ public class CategoryService {
 
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
 
         category.setName(categoryDTO.getName());
         category.setDescription(categoryDTO.getDescription());
@@ -52,7 +54,7 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
         categoryRepository.delete(category);
     }
 

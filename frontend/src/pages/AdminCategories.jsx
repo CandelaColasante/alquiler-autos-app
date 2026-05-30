@@ -17,6 +17,10 @@ function AdminCategories() {
         description: "",
         imageUrl: ""
     });
+    
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [touched, setTouched] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const loadCategories = async () => {
         try {
@@ -34,14 +38,47 @@ function AdminCategories() {
         loadCategories();
     }, []);
 
+    const validateField = (field, value) => {
+        switch (field) {
+            case 'name':
+                if (!value.trim()) return "El nombre de la categoría es obligatorio";
+                if (value.length < 2) return "El nombre debe tener al menos 2 caracteres";
+                if (value.length > 50) return "El nombre no puede superar los 50 caracteres";
+                if (!/^[a-zA-ZáéíóúñÑ\s]+$/.test(value)) return "El nombre solo puede contener letras y espacios";
+                return "";
+            case 'description':
+                if (value.length > 500) return "La descripción no puede superar los 500 caracteres";
+                return "";
+            case 'imageUrl':
+                if (value && !value.match(/^https?:\/\/.+\..+/)) {
+                    return "Ingresa una URL válida (ej: https://ejemplo.com/imagen.jpg)";
+                }
+                return "";
+            default:
+                return "";
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        if (touched[name]) {
+            const error = validateField(name, value);
+            setFieldErrors(prev => ({ ...prev, [name]: error }));
+        }
+    };
+
+    const handleBlur = (field) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
+        const error = validateField(field, formData[field]);
+        setFieldErrors(prev => ({ ...prev, [field]: error }));
     };
 
     const handleCreate = () => {
         setEditingCategory(null);
         setFormData({ name: "", description: "", imageUrl: "" });
+        setFieldErrors({});
+        setTouched({});
         setShowForm(true);
         setError("");
     };
@@ -53,19 +90,40 @@ function AdminCategories() {
             description: category.description || "",
             imageUrl: category.imageUrl || ""
         });
+        setFieldErrors({});
+        setTouched({});
         setShowForm(true);
         setError("");
+    };
+
+    const validateForm = () => {
+        const nameError = validateField('name', formData.name);
+        const descriptionError = validateField('description', formData.description);
+        const imageUrlError = validateField('imageUrl', formData.imageUrl);
+        
+        const errors = {
+            name: nameError,
+            description: descriptionError,
+            imageUrl: imageUrlError
+        };
+        
+        setFieldErrors(errors);
+        setTouched({ name: true, description: true, imageUrl: true });
+        
+        return !nameError && !descriptionError && !imageUrlError;
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
-
-        if (!formData.name.trim()) {
-            setError("El nombre de la categoría es obligatorio");
+        
+        if (!validateForm()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        setIsSubmitting(true);
 
         try {
             const categoryData = {
@@ -87,6 +145,8 @@ function AdminCategories() {
         } catch (error) {
             console.error("Error:", error);
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -131,7 +191,7 @@ function AdminCategories() {
                 {showForm && (
                     <div className="form-container">
                         <h3>{editingCategory ? "Editar" : "Nueva"} Categoría</h3>
-                        <form onSubmit={handleSave}>
+                        <form onSubmit={handleSave} noValidate>
                             <div className="form-group">
                                 <label>Nombre de la categoría *</label>
                                 <input
@@ -139,9 +199,13 @@ function AdminCategories() {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
+                                    onBlur={() => handleBlur('name')}
                                     placeholder="Ej: SUV, Sedán, Pickup"
-                                    required
+                                    className={fieldErrors.name && touched.name ? "input-error" : ""}
                                 />
+                                {fieldErrors.name && touched.name && (
+                                    <span className="error-message">{fieldErrors.name}</span>
+                                )}
                             </div>
                             
                             <div className="form-group">
@@ -150,9 +214,14 @@ function AdminCategories() {
                                     name="description"
                                     value={formData.description}
                                     onChange={handleChange}
+                                    onBlur={() => handleBlur('description')}
                                     placeholder="Descripción de la categoría..."
                                     rows="3"
+                                    className={fieldErrors.description && touched.description ? "input-error" : ""}
                                 />
+                                {fieldErrors.description && touched.description && (
+                                    <span className="error-message">{fieldErrors.description}</span>
+                                )}
                             </div>
                             
                             <div className="form-group">
@@ -162,14 +231,19 @@ function AdminCategories() {
                                     name="imageUrl"
                                     value={formData.imageUrl}
                                     onChange={handleChange}
+                                    onBlur={() => handleBlur('imageUrl')}
                                     placeholder="https://ejemplo.com/imagen.jpg"
+                                    className={fieldErrors.imageUrl && touched.imageUrl ? "input-error" : ""}
                                 />
                                 <small>Pega la URL de una imagen representativa para esta categoría</small>
+                                {fieldErrors.imageUrl && touched.imageUrl && (
+                                    <span className="error-message">{fieldErrors.imageUrl}</span>
+                                )}
                             </div>
                             
                             <div className="form-buttons">
-                                <button type="submit" className="btn-submit">
-                                    {editingCategory ? "Actualizar" : "Crear"}
+                                <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                                    {isSubmitting ? "Guardando..." : (editingCategory ? "Actualizar" : "Crear")}
                                 </button>
                                 <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>
                                     Cancelar

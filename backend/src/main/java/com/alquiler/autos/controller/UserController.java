@@ -1,5 +1,6 @@
 package com.alquiler.autos.controller;
 
+import com.alquiler.autos.dto.LoginResponseDTO;
 import com.alquiler.autos.dto.UserLoginDTO;
 import com.alquiler.autos.dto.UserRegisterDTO;
 import com.alquiler.autos.dto.UserRoleUpdateDTO;
@@ -29,9 +30,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@Valid @RequestBody UserLoginDTO loginDTO) {
-        User user = userService.loginUser(loginDTO.getEmail(), loginDTO.getPassword());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<LoginResponseDTO> loginUser(@Valid @RequestBody UserLoginDTO loginDTO) {
+        LoginResponseDTO userResponse = userService.loginUser(loginDTO.getEmail(), loginDTO.getPassword());
+        return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping("/users")

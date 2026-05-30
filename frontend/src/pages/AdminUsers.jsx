@@ -8,6 +8,7 @@ function AdminUsers() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [currentUser, setCurrentUser] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -49,6 +50,7 @@ function AdminUsers() {
     const updateUserRole = async (userId, newRole) => {
         setSuccess("");
         setError("");
+        setIsProcessing(true);
         
         try {
             const API_URL = 'http://localhost:8080';
@@ -70,7 +72,7 @@ function AdminUsers() {
             }
             
             setSuccess(`Rol actualizado correctamente`);
-            loadUsers();
+            await loadUsers();
             
             if (currentUser && currentUser.id === userId) {
                 const updatedUser = { ...currentUser, role: newRole };
@@ -78,9 +80,14 @@ function AdminUsers() {
                 setCurrentUser(updatedUser);
             }
             
+            setTimeout(() => setSuccess(""), 3000);
+            
         } catch (error) {
             console.error("Error:", error);
             setError(error.message);
+            setTimeout(() => setError(""), 3000);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -129,15 +136,17 @@ function AdminUsers() {
                                             <button 
                                                 className="btn-remove-admin"
                                                 onClick={() => updateUserRole(user.id, "USER")}
+                                                disabled={isProcessing}
                                             >
-                                                Quitar Admin
+                                                {isProcessing ? "Procesando..." : "Quitar Admin"}
                                             </button>
                                         ) : (
                                             <button 
                                                 className="btn-make-admin"
                                                 onClick={() => updateUserRole(user.id, "ADMIN")}
+                                                disabled={isProcessing}
                                             >
-                                                Hacer Admin
+                                                {isProcessing ? "Procesando..." : "Hacer Admin"}
                                             </button>
                                         )}
                                     </td>

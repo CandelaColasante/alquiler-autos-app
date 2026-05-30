@@ -39,6 +39,10 @@ function AdminFeatures() {
         icon: ""
     });
     const [searchIcon, setSearchIcon] = useState("");
+    
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [touched, setTouched] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const loadFeatures = async () => {
         try {
@@ -58,18 +62,49 @@ function AdminFeatures() {
         loadFeatures();
     }, []);
 
+    const validateField = (field, value) => {
+        switch (field) {
+            case 'name':
+                if (!value.trim()) return "El nombre de la característica es obligatorio";
+                if (value.length < 2) return "El nombre debe tener al menos 2 caracteres";
+                if (value.length > 100) return "El nombre no puede superar los 100 caracteres";
+                if (!/^[a-zA-ZáéíóúñÑ\s]+$/.test(value)) return "El nombre solo puede contener letras y espacios";
+                return "";
+            case 'icon':
+                if (!value) return "Debes seleccionar un ícono";
+                return "";
+            default:
+                return "";
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        if (touched[name]) {
+            const error = validateField(name, value);
+            setFieldErrors(prev => ({ ...prev, [name]: error }));
+        }
+    };
+
+    const handleBlur = (field) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
+        const error = validateField(field, formData[field]);
+        setFieldErrors(prev => ({ ...prev, [field]: error }));
     };
 
     const handleIconSelect = (icono) => {
         setFormData(prev => ({ ...prev, icon: icono }));
+        if (touched.icon) {
+            setFieldErrors(prev => ({ ...prev, icon: "" }));
+        }
     };
 
     const handleCreate = () => {
         setEditingFeature(null);
         setFormData({ name: "", icon: "" });
+        setFieldErrors({});
+        setTouched({});
         setShowForm(true);
         setError("");
         setSearchIcon("");
@@ -78,20 +113,35 @@ function AdminFeatures() {
     const handleEdit = (feature) => {
         setEditingFeature(feature);
         setFormData({ name: feature.name, icon: feature.icon });
+        setFieldErrors({});
+        setTouched({});
         setShowForm(true);
         setError("");
         setSearchIcon("");
+    };
+
+    const validateForm = () => {
+        const nameError = validateField('name', formData.name);
+        const iconError = validateField('icon', formData.icon);
+        
+        const errors = { name: nameError, icon: iconError };
+        setFieldErrors(errors);
+        setTouched({ name: true, icon: true });
+        
+        return !nameError && !iconError;
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
-
-        if (!formData.name.trim() || !formData.icon.trim()) {
-            setError("Todos los campos son obligatorios");
+        
+        if (!validateForm()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
+
+        setIsSubmitting(true);
 
         try {
             let response;
@@ -99,13 +149,13 @@ function AdminFeatures() {
                 response = await fetch(`${API_URL}/api/features/${editingFeature.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: formData.name, icon: formData.icon })
+                    body: JSON.stringify({ name: formData.name.trim(), icon: formData.icon })
                 });
             } else {
                 response = await fetch(`${API_URL}/api/features`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: formData.name, icon: formData.icon })
+                    body: JSON.stringify({ name: formData.name.trim(), icon: formData.icon })
                 });
             }
 
@@ -121,6 +171,8 @@ function AdminFeatures() {
         } catch (error) {
             console.error("Error:", error);
             setError(error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -179,19 +231,23 @@ function AdminFeatures() {
                         <h3>{editingFeature ? "Editar" : "Nueva"} Característica</h3>
                         <form onSubmit={handleSave}>
                             <div className="form-group">
-                                <label>Nombre de la característica</label>
+                                <label>Nombre de la característica *</label>
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
+                                    onBlur={() => handleBlur('name')}
                                     placeholder="Ej: Aire acondicionado"
-                                    required
+                                    className={fieldErrors.name && touched.name ? "input-error" : ""}
                                 />
+                                {fieldErrors.name && touched.name && (
+                                    <span className="error-message">{fieldErrors.name}</span>
+                                )}
                             </div>
 
                             <div className="form-group">
-                                <label>Selecciona un ícono</label>
+                                <label>Selecciona un ícono *</label>
                                 <div className="icon-search-bar">
                                     <input
                                         type="text"
@@ -202,7 +258,7 @@ function AdminFeatures() {
                                     />
                                 </div>
                                 
-                                <div className="icon-selector-grid">
+                                <div className={`icon-selector-grid ${fieldErrors.icon && touched.icon ? 'input-error' : ''}`}>
                                     {iconosFiltrados.map((iconoObj) => (
                                         <div
                                             key={iconoObj.icono}
@@ -215,7 +271,11 @@ function AdminFeatures() {
                                     ))}
                                 </div>
                                 
-                                {formData.icon && (
+                                {fieldErrors.icon && touched.icon && (
+                                    <span className="error-message">{fieldErrors.icon}</span>
+                                )}
+                                
+                                {formData.icon && !fieldErrors.icon && (
                                     <div className="selected-icon-info">
                                         <strong>Ícono seleccionado:</strong>
                                         <i className={`fas ${formData.icon}`}></i>
@@ -225,8 +285,8 @@ function AdminFeatures() {
                             </div>
 
                             <div className="form-buttons">
-                                <button type="submit" className="btn-submit">
-                                    {editingFeature ? "Actualizar" : "Crear"}
+                                <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                                    {isSubmitting ? "Guardando..." : (editingFeature ? "Actualizar" : "Crear")}
                                 </button>
                                 <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>
                                     Cancelar
