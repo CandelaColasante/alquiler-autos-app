@@ -10,18 +10,20 @@ public class ProductResponseDTO {
     private List<String> images;
     private CategoryDTO category;
     private List<FeatureDTO> features;
+    private boolean isFavorite;
 
     public ProductResponseDTO() {}
 
     public ProductResponseDTO(Long id, String name, String description,
                               List<String> images, CategoryDTO category,
-                              List<FeatureDTO> features) {
+                              List<FeatureDTO> features, boolean isFavorite) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.images = images;
         this.category = category;
         this.features = features;
+        this.isFavorite = isFavorite;
     }
 
     public Long getId() { return id; }
@@ -41,4 +43,16 @@ public class ProductResponseDTO {
 
     public List<FeatureDTO> getFeatures() { return features; }
     public void setFeatures(List<FeatureDTO> features) { this.features = features; }
+
+    public boolean isFavorite() { return isFavorite; }
+    public void setFavorite(boolean favorite) { isFavorite = favorite; }
+
+    private Double averageRating;
+    private Long reviewCount;
+
+    public Double getAverageRating() { return averageRating; }
+    public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+
+    public Long getReviewCount() { return reviewCount; }
+    public void setReviewCount(Long reviewCount) { this.reviewCount = reviewCount; }
 }

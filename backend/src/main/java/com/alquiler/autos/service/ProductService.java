@@ -8,9 +8,14 @@ import com.alquiler.autos.exception.ResourceNotFoundException;
 import com.alquiler.autos.model.Category;
 import com.alquiler.autos.model.Feature;
 import com.alquiler.autos.model.Product;
+import com.alquiler.autos.model.Reservation;
 import com.alquiler.autos.repository.CategoryRepository;
 import com.alquiler.autos.repository.FeatureRepository;
 import com.alquiler.autos.repository.ProductRepository;
+import com.alquiler.autos.repository.ReservationRepository;
+import com.alquiler.autos.repository.ReviewRepository;
+import com.alquiler.autos.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +42,15 @@ public class ProductService {
 
     @Autowired
     private FeatureRepository featureRepository;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
 
@@ -102,9 +117,15 @@ public class ProductService {
         return convertToResponseDTO(product);
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto", id));
+
+        reviewRepository.deleteByProductId(id);
+        reservationRepository.deleteByProductId(id);
+        userRepository.removeProductFromAllFavorites(id);
+
         productRepository.delete(product);
     }
 
@@ -120,7 +141,7 @@ public class ProductService {
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            imageUrls.add("/uploads/" + fileName);
+            imageUrls.add("http://localhost:8080/uploads/" + fileName);
         }
 
         return imageUrls;
@@ -132,6 +153,7 @@ public class ProductService {
         responseDTO.setName(product.getName());
         responseDTO.setDescription(product.getDescription());
         responseDTO.setImages(product.getImages());
+        responseDTO.setFavorite(false);
 
         if (product.getCategory() != null) {
             responseDTO.setCategory(convertCategoryToDTO(product.getCategory()));
@@ -143,6 +165,10 @@ public class ProductService {
                     .collect(Collectors.toList());
             responseDTO.setFeatures(featureDTOs);
         }
+
+        Double avgRating = reviewRepository.findAverageRatingByProductId(product.getId());
+        responseDTO.setAverageRating(avgRating != null ? Math.round(avgRating * 10.0) / 10.0 : 0.0);
+        responseDTO.setReviewCount(reviewRepository.countByProductId(product.getId()));
 
         return responseDTO;
     }
@@ -162,5 +188,20 @@ public class ProductService {
         dto.setName(feature.getName());
         dto.setIcon(feature.getIcon());
         return dto;
+    }
+
+    public List<String> getBookedDates(Long productId) {
+        List<Reservation> reservations = reservationRepository.findByProductId(productId);
+        List<String> bookedDates = new ArrayList<>();
+
+        for (Reservation reservation : reservations) {
+            LocalDate current = reservation.getStartDate();
+            while (!current.isAfter(reservation.getEndDate())) {
+                bookedDates.add(current.toString()); //
+                current = current.plusDays(1);
+            }
+        }
+
+        return bookedDates;
     }
 }

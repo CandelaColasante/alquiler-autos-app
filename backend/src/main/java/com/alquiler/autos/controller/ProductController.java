@@ -91,4 +91,15 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok(Map.of("message", "Producto eliminado correctamente"));
     }
+
+    @GetMapping("/{id}/availability")
+    public ResponseEntity<?> getProductAvailability(@PathVariable Long id) {
+        try {
+            List<String> bookedDates = productService.getBookedDates(id);
+            return ResponseEntity.ok(bookedDates);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al cargar la disponibilidad del producto"));
+        }
+    }
 }

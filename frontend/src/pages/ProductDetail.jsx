@@ -2,12 +2,17 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '../services/api';
 import ImageGallery from '../components/ImageGallery';
+import AvailabilityCalendar from '../components/AvailabilityCalendar';
+import ProductPolicies from '../components/ProductPolicies';
+import ShareModal from '../components/ShareModal';
+import ProductReviews from '../components/ProductReview';
 
-function ProductDetail() {
+function ProductDetail({ user }) {
     const { id } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -51,6 +56,7 @@ function ProductDetail() {
     return (
         <div className="main-with-padding">
             <div className="product-detail">
+
                 <div className="detail-header">
                     <h1 className="detail-title">{product.name}</h1>
                     <button onClick={() => navigate(-1)} className="back-btn">
@@ -63,12 +69,15 @@ function ProductDetail() {
                         <span className="category-badge">
                             {product.category.name}
                         </span>
+                        <button className="btn" onClick={() => setShowShareModal(true)}>
+                            <i className="fas fa-share-alt"></i> Compartir
+                        </button>
                     </div>
                 )}
 
                 <div className="product-gallery-container">
-                    <ImageGallery 
-                        images={product.images || []} 
+                    <ImageGallery
+                        images={product.images || []}
                         productName={product.name}
                     />
                 </div>
@@ -91,7 +100,21 @@ function ProductDetail() {
                     <h3>Descripción</h3>
                     <p>{product.description}</p>
                 </div>
+
+                <AvailabilityCalendar productId={product.id} />
+
+                <ProductPolicies />
+
+                <ProductReviews productId={product.id} user={user} />
+
             </div>
+
+            {showShareModal && (
+                <ShareModal
+                    product={product}
+                    onClose={() => setShowShareModal(false)}
+                />
+            )}
         </div>
     );
 }

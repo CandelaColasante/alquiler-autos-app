@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCategories, createCategory, updateCategory, deleteCategory } from "../services/api";
-
-const API_URL = 'http://localhost:8080';
+import { getCategories, createCategory, updateCategory, deleteCategory, getProducts } from "../services/api";
 
 function AdminCategories() {
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -17,7 +16,9 @@ function AdminCategories() {
         description: "",
         imageUrl: ""
     });
-    
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleting, setDeleting] = useState(false);
+
     const [fieldErrors, setFieldErrors] = useState({});
     const [touched, setTouched] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,8 +35,18 @@ function AdminCategories() {
         }
     };
 
+    const loadProducts = async () => {
+    try {
+        const data = await getProducts();
+        setProducts(data);
+    } catch (error) {
+        console.error("Error al cargar productos:", error);
+    }
+};
+
     useEffect(() => {
         loadCategories();
+        loadProducts();
     }, []);
 
     const validateField = (field, value) => {
@@ -100,16 +111,16 @@ function AdminCategories() {
         const nameError = validateField('name', formData.name);
         const descriptionError = validateField('description', formData.description);
         const imageUrlError = validateField('imageUrl', formData.imageUrl);
-        
+
         const errors = {
             name: nameError,
             description: descriptionError,
             imageUrl: imageUrlError
         };
-        
+
         setFieldErrors(errors);
         setTouched({ name: true, description: true, imageUrl: true });
-        
+
         return !nameError && !descriptionError && !imageUrlError;
     };
 
@@ -117,7 +128,7 @@ function AdminCategories() {
         e.preventDefault();
         setError("");
         setSuccess("");
-        
+
         if (!validateForm()) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
@@ -131,7 +142,7 @@ function AdminCategories() {
                 description: formData.description.trim(),
                 imageUrl: formData.imageUrl.trim()
             };
-            
+
             if (editingCategory) {
                 await updateCategory(editingCategory.id, categoryData);
                 setSuccess("Categoría actualizada correctamente");
@@ -139,7 +150,7 @@ function AdminCategories() {
                 await createCategory(categoryData);
                 setSuccess("Categoría creada correctamente");
             }
-            
+
             setShowForm(false);
             loadCategories();
         } catch (error) {
@@ -150,16 +161,33 @@ function AdminCategories() {
         }
     };
 
-    const handleDelete = async (id, name) => {
-        if (!window.confirm(`¿Estás seguro de eliminar la categoría "${name}"?`)) return;
-        
+    // Cuenta cuántos productos pertenecen a una categoría
+    const getProductCount = (categoryId) => {
+        return products.filter(p => p.category && p.category.id === categoryId).length;
+    };
+
+    const handleDeleteClick = (category) => {
+        const productCount = getProductCount(category.id);
+        setDeleteTarget({ ...category, productCount });
+        setError("");
+        setSuccess("");
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteTarget) return;
+        setDeleting(true);
         try {
-            await deleteCategory(id);
+            await deleteCategory(deleteTarget.id);
             setSuccess("Categoría eliminada correctamente");
+            setDeleteTarget(null);
             loadCategories();
+            loadProducts();
         } catch (error) {
             console.error("Error:", error);
             setError(error.message);
+            setDeleteTarget(null);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -175,7 +203,7 @@ function AdminCategories() {
         <div className="main-with-padding">
             <div className="admin-container">
                 <h2 className="admin-title">Administrar Categorías</h2>
-                
+
                 {error && <div className="form-error">{error}</div>}
                 {success && <div className="success-message">{success}</div>}
 
@@ -207,7 +235,7 @@ function AdminCategories() {
                                     <span className="error-message">{fieldErrors.name}</span>
                                 )}
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Descripción</label>
                                 <textarea
@@ -223,7 +251,7 @@ function AdminCategories() {
                                     <span className="error-message">{fieldErrors.description}</span>
                                 )}
                             </div>
-                            
+
                             <div className="form-group">
                                 <label>Imagen representativa (URL)</label>
                                 <input
@@ -240,7 +268,7 @@ function AdminCategories() {
                                     <span className="error-message">{fieldErrors.imageUrl}</span>
                                 )}
                             </div>
-                            
+
                             <div className="form-buttons">
                                 <button type="submit" className="btn-submit" disabled={isSubmitting}>
                                     {isSubmitting ? "Guardando..." : (editingCategory ? "Actualizar" : "Crear")}
@@ -260,8 +288,8 @@ function AdminCategories() {
                             <div key={category.id} className="category-card">
                                 <div className="category-image">
                                     {category.imageUrl ? (
-                                        <img 
-                                            src={category.imageUrl} 
+                                        <img
+                                            src={category.imageUrl}
                                             alt={category.name}
                                         />
                                     ) : (
@@ -273,12 +301,15 @@ function AdminCategories() {
                                 <div className="category-info">
                                     <h3>{category.name}</h3>
                                     <p>{category.description || "Sin descripción"}</p>
+                                    <span className="category-product-count">
+                                        <i className="fas fa-car"></i> {getProductCount(category.id)} producto{getProductCount(category.id) !== 1 ? 's' : ''}
+                                    </span>
                                 </div>
                                 <div className="category-actions">
                                     <button className="admin-view-btn" onClick={() => handleEdit(category)}>
                                         Editar
                                     </button>
-                                    <button className="admin-delete-btn" onClick={() => handleDelete(category.id, category.name)}>
+                                    <button className="admin-delete-btn" onClick={() => handleDeleteClick(category)}>
                                         Eliminar
                                     </button>
                                 </div>
@@ -287,6 +318,37 @@ function AdminCategories() {
                     </div>
                 </div>
             </div>
+
+            {deleteTarget && (
+                <div className="confirm-overlay" onClick={() => !deleting && setDeleteTarget(null)}>
+                    <div className="confirm-modal" onClick={e => e.stopPropagation()}>
+                        <div className="confirm-modal-icon">
+                            <i className="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Eliminar categoría</h3>
+                        <p>
+                            ¿Estás seguro de que querés eliminar la categoría <strong>"{deleteTarget.name}"</strong>?
+                        </p>
+                        {deleteTarget.productCount > 0 && (
+                            <div className="confirm-warning">
+                                <i className="fas fa-info-circle"></i>
+                                Esta categoría tiene <strong>{deleteTarget.productCount}</strong> producto{deleteTarget.productCount !== 1 ? 's' : ''} asociado{deleteTarget.productCount !== 1 ? 's' : ''}.
+                                Al eliminar la categoría, <strong>también se eliminarán todos esos productos</strong> junto con sus reseñas, reservas e imágenes.
+                                <br /><br />
+                                Esta acción <strong>no se puede deshacer</strong>.
+                            </div>
+                        )}
+                        <div className="confirm-modal-buttons">
+                            <button className="btn-cancel" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                                Cancelar
+                            </button>
+                            <button className="confirm-delete-btn" onClick={confirmDelete} disabled={deleting}>
+                                {deleting ? "Eliminando..." : "Sí, eliminar"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -17,6 +17,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import CategoryFilter from './components/CategoryFilter'; 
 import AdminCategories from './pages/AdminCategories';
+import SearchBar from './components/SearchBar';
+import ProductCard from './components/ProductCard';
 
 function getRandomProducts(products, max = 4) {
   if (!products || products.length === 0) return [];
@@ -29,7 +31,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [user, setUser] = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState([]); 
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  
   const productsPerPage = 6;
   const navigate = useNavigate();
 
@@ -56,14 +63,30 @@ function App() {
     loadProducts();
   }, []);
 
+  const handleSearch = (term, start, end) => {
+    setSearchTerm(term);
+    setStartDate(start);
+    setEndDate(end);
+    setCurrentPage(1);
+  };
+
   const filteredProducts = useMemo(() => {
-    if (selectedCategories.length === 0) {
-      return products;
+    let result = products;
+    
+    if (selectedCategories.length > 0) {
+      result = result.filter(product => 
+        product.category && selectedCategories.includes(product.category.id)
+      );
     }
-    return products.filter(product => 
-      product.category && selectedCategories.includes(product.category.id)
-    );
-  }, [products, selectedCategories]);
+    
+    if (searchTerm.trim() !== '') {
+      result = result.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    return result;
+  }, [products, selectedCategories, searchTerm]);
 
   const randomProducts = useMemo(() => getRandomProducts(products, 4), [products]);
   
@@ -74,7 +97,7 @@ function App() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategories]);
+  }, [selectedCategories, searchTerm]);
 
   if (loading) {
     return (
@@ -97,7 +120,7 @@ function App() {
           element={
             <main className='main'>
               <section className='section search-section'>
-                <h2>Buscador</h2>
+                <SearchBar onSearch={handleSearch} products={products} />
               </section>
               
               <section className='section categories-section'>
@@ -108,43 +131,20 @@ function App() {
                 />
               </section>
               
-              <section className='section recommendations-section'>
-                <h2>Recomendaciones</h2>
-                <div className='products-grid'>
-                  {randomProducts.map(product => (
-                    <div 
-                      key={product.id} 
-                      className='product-card'
-                      onClick={() => navigate(`/product/${product.id}`)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <img 
-                        src={
-                          product.images && product.images.length > 0
-                            ? product.images[0] 
-                            : "https://via.placeholder.com/600x400?text=Sin+Imagen"
-                        } 
-                        alt={product.name}
-                        className="product-card-image"
-                        onError={(e) => { e.target.src = "https://via.placeholder.com/600x400?text=Error+al+cargar"; }}
-                      />
-                      <div className='product-info'>  
-                        <h3>{product.name}</h3>
-                        <span className="category-badge">{product.category?.name || "General"}</span>
-                        <p>{product.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
               <section className='catalog-section'>
                 <div className="catalog-header">
-                  <h2>Todos los autos</h2>
+                  <h2>
+                    {searchTerm || selectedCategories.length > 0 ? 'Resultados de búsqueda' : 'Todos los autos'}
+                  </h2>
                   <div className="result-counter">
                     {selectedCategories.length > 0 && (
                       <span className="filter-badge">
                         Filtro: {selectedCategories.length} categoría(s)
+                      </span>
+                    )}
+                    {searchTerm && (
+                      <span className="filter-badge search-badge">
+                        Búsqueda: {searchTerm}
                       </span>
                     )}
                     <span className="product-count">
@@ -155,39 +155,29 @@ function App() {
                 
                 {filteredProducts.length === 0 ? (
                   <div className="no-results">
-                    <p>No hay vehículos que coincidan con las categorías seleccionadas.</p>
+                    <p>No hay vehículos que coincidan con tu búsqueda o filtros seleccionados.</p>
                     <button 
                       className="btn-clear-filters" 
-                      onClick={() => setSelectedCategories([])}
+                      onClick={() => {
+                        setSelectedCategories([]);
+                        setSearchTerm('');
+                        setStartDate('');
+                        setEndDate('');
+                      }}
                     >
-                      Limpiar filtros
+                      Limpiar filtros y búsqueda
                     </button>
                   </div>
                 ) : (
                   <>
                     <div className='products-grid'>
                       {currentProducts.map(product => (
-                        <div 
+                        <ProductCard 
                           key={product.id}
-                          className='product-card'
-                          onClick={() => navigate(`/product/${product.id}`)}
-                        >
-                          <img 
-                            src={
-                              product.images && product.images.length > 0
-                                ? product.images[0]
-                                : "https://via.placeholder.com/600x400?text=Sin+Imagen"
-                            }
-                            alt={product.name}
-                            className='product-card-image'
-                            onError={(e) => { e.target.src = "https://via.placeholder.com/600x400?text=Error+al+cargar"; }}
-                          />
-                          <div className='product-info'>
-                            <h3>{product.name}</h3>
-                            <span className="category-badge">{product.category?.name || "General"}</span>
-                            <p>{product.description}</p>
-                          </div>
-                        </div>
+                          product={product}
+                          user={user}
+                          onFavoriteChange={loadProducts}
+                        />
                       ))}
                     </div>
 
@@ -225,13 +215,27 @@ function App() {
                   </>
                 )}
               </section>
+              
+              <section className='section recommendations-section'>
+                <h2>Recomendaciones</h2>
+                <div className='products-grid'>
+                  {randomProducts.map(product => (
+                    <ProductCard 
+                      key={product.id}
+                      product={product}
+                      user={user}
+                      onFavoriteChange={loadProducts}
+                    />
+                  ))}
+                </div>
+              </section>
             </main>
           }
         />
         
         <Route path='/registro' element={<Register setUser={setUser} />} />
         <Route path='/login' element={<Login setUser={setUser} />} />
-        <Route path='/product/:id' element={<ProductDetail products={products} />} />
+        <Route path='/product/:id' element={<ProductDetail products={products} user={user} />} />
         
         <Route path='/perfil' element={
           <ProtectedRoute>

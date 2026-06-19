@@ -7,6 +7,10 @@ import com.alquiler.autos.model.Category;
 import com.alquiler.autos.repository.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.alquiler.autos.model.Product;
+import com.alquiler.autos.repository.ProductRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +20,12 @@ public class CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private ProductService productService;
 
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
@@ -52,9 +62,16 @@ public class CategoryService {
         return convertToDTO(updatedCategory);
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
+
+        List<Product> products = productRepository.findByCategoryId(id);
+        for (Product product : products) {
+            productService.deleteProduct(product.getId());
+        }
+
         categoryRepository.delete(category);
     }
 

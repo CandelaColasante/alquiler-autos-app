@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Login({ setUser }) {  // ← RECIBIR setUser POR PROPS
+function Login({ setUser }) {  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -76,10 +76,9 @@ function Login({ setUser }) {  // ← RECIBIR setUser POR PROPS
         throw new Error("Error al iniciar sesión");
       }
 
-      // Guardar usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(data));
-      
-      // ACTUALIZAR ESTADO EN APP
+     localStorage.setItem("user", JSON.stringify(data));
+     localStorage.setItem("token", data.token);
+ 
       setUser(data);
       
       alert(`¡Bienvenido ${data.firstName}!`);

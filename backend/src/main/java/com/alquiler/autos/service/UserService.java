@@ -2,11 +2,14 @@ package com.alquiler.autos.service;
 
 import com.alquiler.autos.dto.LoginResponseDTO;
 import com.alquiler.autos.dto.UserRegisterDTO;
+import com.alquiler.autos.model.Product;
 import com.alquiler.autos.model.User;
+import com.alquiler.autos.repository.ProductRepository;
 import com.alquiler.autos.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.alquiler.autos.security.JwtService;
 
 import java.util.List;
 
@@ -18,6 +21,12 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private JwtService jwtService;
 
     public User registerUser(UserRegisterDTO registerDTO) {
 
@@ -43,12 +52,15 @@ public class UserService {
             throw new RuntimeException("Email o contraseña incorrectos");
         }
 
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole());
+
         return new LoginResponseDTO(
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                token
         );
     }
 
@@ -72,5 +84,39 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         return "ADMIN".equals(user.getRole());
+    }
+
+    public void addFavorite(Long userId, Long productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        if (!user.getFavorites().contains(product)) {
+            user.getFavorites().add(product);
+            userRepository.save(user);
+        }
+    }
+
+    public void removeFavorite(Long userId, Long productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        user.getFavorites().remove(product);
+        userRepository.save(user);
+    }
+
+    public boolean isFavorite(Long userId, Long productId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return user.getFavorites().stream().anyMatch(p -> p.getId().equals(productId));
+    }
+
+    public List<Product> getUserFavorites(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return user.getFavorites();
     }
 }

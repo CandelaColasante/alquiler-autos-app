@@ -50,3 +50,22 @@ Desarrollar una aplicación web que permita:
 - Incorporación de DTOs: Se implementaron DTOs (Data Transfer Objects) para controlar qué información
 se expone en las respuestas de la API, mejorando la seguridad y evitando enviar datos sensible como la
 contraseña del usuario.
+
+## Sprint 3 - Funcionalidades de Usuario y Producto
+
+### Historias de usuario completadas:
+- Como usuario quiero poder realizar búsquedas de productos para encontrar los resultados que mejor se adapten a lo que busco. ✅
+- Como usuario quiero poder visualizar las fechas disponibles en la ficha del producto para poder acceder a la sección de reservas. ✅
+- Como usuario autenticado quiero poder marcar productos como favoritos desde la lista de productos del home para poder acceder a ellos posteriormente. ✅
+- Como usuario autenticado quiero poder acceder a mi lista de favoritos para ver los productos que marqué previamente. ✅
+- Como usuario quiero poder visualizar la política de uso de un producto para informarme sobre cuidados y precauciones. ✅
+- Como usuario quiero compartir productos en las redes sociales para poder recomendarlos a otros usuarios. ✅
+- Como usuario que realizó una reserva quiero poder puntuar los productos con estrellas para poder dar mi opinión. ✅
+- Como administrador quiero poder eliminar categorías que ya no se utilizarán para mantener el catálogo de productos organizado y actualizado. ✅
+
+### Mejoras técnicas respecto al Sprint 2:
+- Implementación de autenticación con JWT (JSON Web Token): al iniciar sesión, el backend genera un token firmado que el frontend almacena y envía en cada petición protegida mediante el header `Authorization: Bearer`. El backend valida el token y el rol del usuario en cada operación, eliminando la dependencia exclusiva del frontend para el control de acceso.
+- Protección de endpoints por rol en el backend: los endpoints de administración (crear/editar/eliminar productos, categorías y características) ahora requieren rol `ADMIN` verificado por el servidor, no solo por el frontend.
+- Eliminación en cascada de categorías: al eliminar una categoría, se eliminan automáticamente todos los productos asociados junto con sus reseñas, reservas e imágenes.
+- Sistema de reseñas y puntuación media dinámica con persistencia en base de datos.
+- Configuración centralizada de CORS en Spring Security para soportar el header `Authorization`.

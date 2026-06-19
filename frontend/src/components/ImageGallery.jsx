@@ -8,7 +8,6 @@ function ImageGallery({ images, productName }) {
     return <div className="image-gallery-single">No hay imágenes disponibles</div>;
   }
 
-  // Ya no necesitamos transformar porque api.js ya lo hizo
   if (showAll) {
     return (
       <div className="gallery-all">
@@ -26,8 +25,10 @@ function ImageGallery({ images, productName }) {
               alt={`${productName} ${index + 1}`} 
               className="gallery-all-image"
               onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/300x200?text=Error';
-              }}
+                if (e.target.dataset.errored) return;
+                e.target.dataset.errored = 'true';
+                e.target.src = 'https://placehold.co/500x350?text=Sin+imagen';
+               }}
             />
           ))}
         </div>
@@ -48,7 +49,9 @@ function ImageGallery({ images, productName }) {
             alt={productName} 
             className="main-image"
             onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/500x350?text=Imagen+principal';
+             if (e.target.dataset.errored) return;
+             e.target.dataset.errored = 'true';
+             e.target.src = 'https://placehold.co/150x150?text=Sin+imagen';
             }}
           />
         </div>
@@ -65,7 +68,9 @@ function ImageGallery({ images, productName }) {
                 alt={`${productName} miniatura ${index + 1}`} 
                 className="grid-image"
                 onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/150x150?text=Error';
+                 if (e.target.dataset.errored) return;
+                 e.target.dataset.errored = 'true';
+                 e.target.src = 'https://placehold.co/300x200?text=Sin+imagen';
                 }}
               />
             </div>
