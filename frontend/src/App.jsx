@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import AddProduct from "./pages/AddProduct";
 import Admin from './pages/Admin';
 import ProductDetail from './pages/ProductDetail';
-import { getProducts } from './services/api';
+import { getProducts, getUnavailableProductIds} from './services/api';
 import './App.css';
 import EditProduct from './components/EditProduct';
 import Register from './pages/Register';
@@ -19,6 +19,9 @@ import CategoryFilter from './components/CategoryFilter';
 import AdminCategories from './pages/AdminCategories';
 import SearchBar from './components/SearchBar';
 import ProductCard from './components/ProductCard';
+import ReservationPage from './pages/ReservationPage';
+import WhatsAppButton from './components/WhatsAppButton';
+
 
 function getRandomProducts(products, max = 4) {
   if (!products || products.length === 0) return [];
@@ -36,6 +39,8 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  const [unavailableProductIds, setUnavailableProductIds] = useState([]);
   
   const productsPerPage = 6;
   const navigate = useNavigate();
@@ -63,12 +68,19 @@ function App() {
     loadProducts();
   }, []);
 
-  const handleSearch = (term, start, end) => {
+  const handleSearch = async (term, start, end) => {
     setSearchTerm(term);
     setStartDate(start);
     setEndDate(end);
     setCurrentPage(1);
-  };
+
+    if (start && end && start !== end) {
+        const ids = await getUnavailableProductIds(start, end);
+        setUnavailableProductIds(ids);
+    } else {
+        setUnavailableProductIds([]);
+    }
+};
 
   const filteredProducts = useMemo(() => {
     let result = products;
@@ -84,9 +96,15 @@ function App() {
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
+
+    if (unavailableProductIds.length > 0) {
+        result = result.filter(product =>
+            !unavailableProductIds.includes(product.id)
+        );
+    }
     
     return result;
-  }, [products, selectedCategories, searchTerm]);
+  }, [products, selectedCategories, searchTerm, unavailableProductIds]);
 
   const randomProducts = useMemo(() => getRandomProducts(products, 4), [products]);
   
@@ -278,8 +296,15 @@ function App() {
             <AdminCategories/>
           </AdminRoute>
         } />
+
+        <Route path='/reserva/:id' element={
+            <ProtectedRoute>
+                <ReservationPage user={user} />
+            </ProtectedRoute>
+        } />
       </Routes>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

@@ -374,7 +374,146 @@ Cantidad total de pruebas del Sprint 3: 30 (Pruebas 25 a 54).
 Cantidad de pruebas aprobadas: 30.
 Cantidad de pruebas fallidas: 0.
 
+## Sprint 4
+### Historias de usuario a probar
+1) Seleccionar fecha para reserva.
+2) Visualizar detalles de reserva.
+3) Realizar reserva.
+4) Acceder a historial de reservas.
+5) Iniciar chat por WhatsApp.
+6) Confirmar reserva por correo.
+
+### Casos de prueba
+
+1) Seleccionar fecha para reserva:
+- Prueba 55: Acceder a reserva como usuario autenticado.
+- Pasos:
+  1. Iniciar sesión.
+  2. Ir al detalle de un producto.
+  3. Click en "Reservar".
+- Resultado esperado: Redirige a la página de reserva del producto.
+
+- Prueba 56: Acceder a reserva sin sesión.
+- Pasos:
+  1. Sin iniciar sesión, ir al detalle de un producto.
+  2. Click en "Reservar".
+- Resultado esperado: Redirige al login con mensaje indicando que es necesario iniciar sesión.
+
+- Prueba 57: Verificar mensaje en login al venir de reserva.
+- Pasos:
+  1. Sin sesión, intentar reservar un producto.
+  2. Observar la página de login.
+- Resultado esperado: Se muestra aviso indicando que el login es obligatorio y opción de registrarse.
+
+- Prueba 58: Seleccionar rango de fechas válido.
+- Pasos:
+  1. En la página de reserva, seleccionar fecha de inicio y fin en el calendario.
+- Resultado esperado: Las fechas seleccionadas se imprimen en el formulario.
+
+- Prueba 59: Intentar seleccionar fechas ocupadas.
+- Pasos:
+  1. En el calendario de reserva, intentar seleccionar un rango que incluya fechas bloqueadas.
+- Resultado esperado: Las fechas ocupadas no son seleccionables.
+
+2) Visualizar detalles de reserva:
+- Prueba 60: Ver información del producto en la página de reserva.
+- Pasos:
+  1. Ir a la página de reserva de un producto.
+- Resultado esperado: Se muestra imagen, nombre, categoría, descripción y características del producto.
+
+- Prueba 61: Ver datos del usuario en la página de reserva.
+- Pasos:
+  1. Ir a la página de reserva estando logueado.
+- Resultado esperado: Se muestra nombre completo y email del usuario que realiza la reserva.
+
+3) Realizar reserva:
+- Prueba 62: Reserva exitosa.
+- Pasos:
+  1. Seleccionar un rango de fechas disponibles.
+  2. Click en "Confirmar reserva".
+- Resultado esperado: Se muestra página de confirmación con nombre del producto y fechas seleccionadas.
+
+- Prueba 63: Reserva con comentario opcional.
+- Pasos:
+  1. Completar el campo de comentarios adicionales.
+  2. Click en "Confirmar reserva".
+- Resultado esperado: La reserva se confirma y el comentario aparece en la pantalla de éxito.
+
+- Prueba 64: Intentar reservar con rango inválido (misma fecha inicio y fin).
+- Pasos:
+  1. No modificar las fechas del calendario.
+  2. Click en "Confirmar reserva".
+- Resultado esperado: Se muestra mensaje de error "Debés seleccionar un rango de fechas válido".
+
+4) Acceder a historial de reservas:
+- Prueba 65: Ver historial de reservas en el perfil.
+- Pasos:
+  1. Iniciar sesión.
+  2. Ir a "Mi Perfil" → "Mis reservas".
+- Resultado esperado: Se muestra la lista de reservas ordenadas por fecha, con nombre del producto, fechas y estado.
+
+- Prueba 66: Verificar estado de reserva activa.
+- Pasos:
+  1. Ver una reserva cuya fecha de fin es posterior a hoy.
+- Resultado esperado: La reserva aparece con estado "Activa".
+
+- Prueba 67: Verificar estado de reserva finalizada.
+- Pasos:
+  1. Ver una reserva cuya fecha de fin ya pasó.
+- Resultado esperado: La reserva aparece con estado "Finalizada".
+
+- Prueba 68: Ver comentario en reserva con notas.
+- Pasos:
+  1. Ver una reserva que fue creada con comentario adicional.
+- Resultado esperado: El comentario aparece en la reserva del historial.
+
+- Prueba 69: Historial vacío.
+- Pasos:
+  1. Iniciar sesión con usuario sin reservas.
+  2. Ir a "Mi Perfil" → "Mis reservas".
+- Resultado esperado: Se muestra mensaje "No tenés reservas todavía".
+
+5) Iniciar chat por WhatsApp:
+- Prueba 70: Botón de WhatsApp visible en todas las páginas.
+- Pasos:
+  1. Navegar por distintas páginas de la app.
+- Resultado esperado: El botón flotante de WhatsApp aparece en la esquina inferior derecha en todas las páginas.
+
+- Prueba 71: Click en botón de WhatsApp.
+- Pasos:
+  1. Click en el botón verde de WhatsApp.
+- Resultado esperado: Se abre WhatsApp Web con un mensaje predefinido.
+
+- Prueba 72: Compatibilidad sin sesión iniciada.
+- Pasos:
+  1. Sin iniciar sesión, click en el botón de WhatsApp.
+- Resultado esperado: Funciona correctamente — no requiere autenticación.
+
+6) Confirmar reserva por correo:
+- Prueba 73: Recibir email al confirmar reserva.
+- Pasos:
+  1. Realizar una reserva exitosa.
+  2. Revisar el correo electrónico del usuario.
+- Resultado esperado: Se recibe un email con asunto "¡Reserva confirmada! - Ready 2 Go" con los datos de la reserva.
+
+- Prueba 74: Verificar contenido del email.
+- Pasos:
+  1. Abrir el email de confirmación recibido.
+- Resultado esperado: El email muestra nombre del vehículo, fecha de inicio, fecha de fin, número de reserva e información de contacto del proveedor.
+
+- Prueba 75: Email enviado al correo correcto.
+- Pasos:
+  1. Realizar reserva con usuario que tiene email registrado.
+  2. Verificar que el email llega a esa dirección.
+- Resultado esperado: El email se recibe en el correo con el que el usuario se registró.
+
+### Resumen Sprint 4
+Fecha de ejecución: 07/07/2026.
+Cantidad total de pruebas del Sprint 4: 21 (Pruebas 55 a 75).
+Cantidad de pruebas aprobadas: 21.
+Cantidad de pruebas fallidas: 0.
+
 ## Resumen general
-Cantidad total de pruebas: 54.
-Cantidad total de pruebas aprobadas: 54.
+Cantidad total de pruebas: 75.
+Cantidad total de pruebas aprobadas: 75.
 Cantidad total de pruebas fallidas: 0.

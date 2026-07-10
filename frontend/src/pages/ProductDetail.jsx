@@ -23,7 +23,6 @@ function ProductDetail({ user }) {
         try {
             setLoading(true);
             const data = await getProductById(id);
-            console.log('Producto cargado:', data);
             setProduct(data);
             setError('');
         } catch (err) {
@@ -31,6 +30,14 @@ function ProductDetail({ user }) {
             setError('No se pudo cargar el producto');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReservation = () => {
+        if (!user) {
+            navigate('/login', { state: { fromReservation: true } });
+        } else {
+            navigate(`/reserva/${id}`);
         }
     };
 
@@ -69,9 +76,14 @@ function ProductDetail({ user }) {
                         <span className="category-badge">
                             {product.category.name}
                         </span>
-                        <button className="btn" onClick={() => setShowShareModal(true)}>
-                            <i className="fas fa-share-alt"></i> Compartir
-                        </button>
+                        <div className="detail-category-actions">
+                            <button className="btn" onClick={() => setShowShareModal(true)}>
+                                <i className="fas fa-share-alt"></i> Compartir
+                            </button>
+                            <button className="btn reservation-btn" onClick={handleReservation}>
+                                <i className="fas fa-calendar-check"></i> Reservar
+                            </button>
+                        </div>
                     </div>
                 )}
 

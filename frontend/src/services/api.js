@@ -348,3 +348,43 @@ export const createReview = async (productId, reviewData) => {
         throw error;
     }
 };
+
+export const createReservation = async (productId, reservationData) => {
+    try {
+        const response = await fetch(`${API_URL}/api/products/${productId}/reservations`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+            body: JSON.stringify(reservationData)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Error al crear la reserva');
+        return data;
+    } catch (error) {
+        console.error('Error en createReservation:', error);
+        throw error;
+    }
+};
+
+export const getUserReservations = async (userId) => {
+    try {
+        const response = await fetch(`${API_URL}/api/users/${userId}/reservations`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Error al obtener reservas');
+        return await response.json();
+    } catch (error) {
+        console.error('Error en getUserReservations:', error);
+        throw error;
+    }
+};
+
+export const getUnavailableProductIds = async (startDate, endDate) => {
+    try {
+        const response = await fetch(`${API_URL}/api/availability/unavailable?startDate=${startDate}&endDate=${endDate}`);
+        if (!response.ok) throw new Error('Error al obtener disponibilidad');
+        return await response.json();
+    } catch (error) {
+        console.error('Error en getUnavailableProductIds:', error);
+        return [];
+    }
+};

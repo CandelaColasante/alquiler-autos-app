@@ -14,6 +14,7 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     List<Reservation> findByProductId(Long productId);
+    List<Reservation> findByProductIdAndEndDateGreaterThanEqual(Long productId, LocalDate date);
 
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Reservation r " +
             "WHERE r.product.id = :productId " +
@@ -27,4 +28,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @org.springframework.transaction.annotation.Transactional
     @Query("DELETE FROM Reservation r WHERE r.product.id = :productId")
     void deleteByProductId(@Param("productId") Long productId);
+
+    @Query("SELECT DISTINCT r.product.id FROM Reservation r WHERE r.startDate <= :endDate AND r.endDate >= :startDate")
+    List<Long> findProductIdsWithOverlap(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

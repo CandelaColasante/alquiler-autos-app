@@ -56,7 +56,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/features/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/features/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/features/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/products/*/reservations/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/products/*/reservations").authenticated()
                         .requestMatchers("/api/auth/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/*/reservations").authenticated()
+                        .requestMatchers("/api/availability/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

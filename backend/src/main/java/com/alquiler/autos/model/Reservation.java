@@ -29,6 +29,9 @@ public class Reservation {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(length = 500)
+    private String notes;
+
     public Reservation() {}
 
     public Reservation(Product product, User user, LocalDate startDate, LocalDate endDate) {
@@ -55,6 +58,9 @@ public class Reservation {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 
     @PrePersist
     protected void onCreate() {

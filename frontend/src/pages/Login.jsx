@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 function Login({ setUser }) {  
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromReservation = location.state?.fromReservation;
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -103,6 +106,13 @@ function Login({ setUser }) {
             {serverError}
           </div>
         )}
+
+        {fromReservation && (
+           <div className="login-reservation-notice">
+               <i className="fas fa-info-circle"></i>
+               <p>Debés iniciar sesión para realizar una reserva. Si no tenés cuenta, <a href="/registro">registrate aquí</a>.</p>
+           </div>
+       )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

@@ -69,3 +69,23 @@ contraseña del usuario.
 - Eliminación en cascada de categorías: al eliminar una categoría, se eliminan automáticamente todos los productos asociados junto con sus reseñas, reservas e imágenes.
 - Sistema de reseñas y puntuación media dinámica con persistencia en base de datos.
 - Configuración centralizada de CORS en Spring Security para soportar el header `Authorization`.
+
+## Sprint 4 - Funcionalidad de Reservas y Mejoras
+
+### Historias de usuario completadas:
+- Como usuario quiero poder realizar búsquedas por fecha para encontrar productos que coincidan con mis intereses. ✅
+- Como usuario autenticado quiero poder visualizar una página de reservas con el detalle del producto para poder reservarlo. ✅
+- Como usuario autenticado quiero poder realizar reservas para poder utilizar los productos. ✅
+- Como usuario autenticado quiero poder visualizar mis reservas anteriores para conocer mi historial. ✅
+- Como usuario quiero poder comunicarme con el proveedor del producto a través de WhatsApp para poder consultarle si tengo alguna duda. ✅
+- Como usuario registrado quiero recibir un correo electrónico con los datos de mi reserva luego de su ejecución para validarlos y encontrarlos fácilmente. ✅
+
+### Mejoras técnicas respecto al Sprint 3:
+- Implementación del flujo completo de reservas: validación de fechas, bloqueo de fechas ocupadas y prevención de superposición de reservas en el backend.
+- Envío automático de email de confirmación de reserva mediante JavaMail y Gmail SMTP, con credenciales protegidas a través de variables de entorno.
+- Integración de botón flotante de WhatsApp con manejo de errores y notificación de éxito.
+- Rediseño del panel de administración con menú lateral tipo dashboard, integrando todas las secciones en una sola página sin navegación entre rutas.
+- Rediseño del perfil de usuario con menú lateral y secciones de información personal, historial de reservas y favoritos.
+- Mejoras de responsive design para compatibilidad con smartphones, tablets y escritorio.
+- Seguridad de credenciales de email mediante variables de entorno en lugar de valores hardcodeados.
+- Corrección del filtro de búsqueda por disponibilidad de fechas: al buscar por rango de fechas, el sistema consulta al backend qué productos tienen reservas que se superponen con el período seleccionado y los excluye de los resultados. Se corrigió además la lógica de superposición para usar comparaciones inclusivas (`<=` y `>=`), asegurando que productos con reservas en los bordes exactos del rango también sean excluidos correctamente.
