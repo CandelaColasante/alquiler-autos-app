@@ -60,12 +60,20 @@ public class ReservationService {
         reservation.setNotes(dto.getNotes());
 
         Reservation saved = reservationRepository.save(reservation);
-        emailService.sendReservationConfirmation(
-                user.getEmail(),
-                user.getFullName(),
-                convertToDTO(saved)
-        );
-        return convertToDTO(saved);
+        boolean emailSent = true;
+        try {
+            emailService.sendReservationConfirmation(
+                    user.getEmail(),
+                    user.getFullName(),
+                    convertToDTO(saved)
+            );
+        } catch (Exception e) {
+            emailSent = false;
+            System.err.println("No se pudo enviar el email de confirmación: " + e.getMessage());
+        }
+        ReservationResponseDTO response = convertToDTO(saved);
+        response.setEmailSent(emailSent);
+        return response;
     }
 
     public List<ReservationResponseDTO> getUserReservations(Long userId) {

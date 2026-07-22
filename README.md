@@ -142,11 +142,19 @@ Los endpoints de administración requieren rol `ADMIN` verificado por el backend
 
 ## 📧 Configuración de Email
 
-El sistema envía emails de confirmación de reserva usando **Gmail SMTP**. Para configurarlo:
+El sistema envía emails de confirmación de reserva usando **Gmail SMTP**. Esta configuración es **opcional** — si no se configura, el backend funciona normalmente y las reservas se crean correctamente. El usuario recibe un aviso en pantalla indicando que el email no pudo enviarse.
+
+Para habilitar el envío de emails:
 
 1. Activar verificación en dos pasos en tu cuenta de Gmail
 2. Generar una contraseña de aplicación en **Configuración → Seguridad → Contraseñas de aplicación**
-3. Configurar las variables de entorno `MAIL_USERNAME` y `MAIL_PASSWORD` en IntelliJ
+3. Configurar las variables de entorno `MAIL_USERNAME` y `MAIL_PASSWORD` en IntelliJ:
+   - Click en el menú desplegable de configuración (al lado del ▶️)
+   - **Edit Configurations...**
+   - En **Environment variables** agregar:
+```
+   MAIL_USERNAME=tu_email@gmail.com;MAIL_PASSWORD=tu_contraseña_de_app
+```
 
 ---
 

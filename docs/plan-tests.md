@@ -507,13 +507,19 @@ Cantidad de pruebas fallidas: 0.
   2. Verificar que el email llega a esa dirección.
 - Resultado esperado: El email se recibe en el correo con el que el usuario se registró.
 
+- Prueba 76: Reserva exitosa sin configuración de email.
+- Pasos:
+  1. Correr el backend sin las variables de entorno MAIL_USERNAME y MAIL_PASSWORD configuradas.
+  2. Realizar una reserva válida.
+- Resultado esperado: La reserva se crea correctamente y se muestra el mensaje "Tu reserva fue creada correctamente, pero no pudimos enviarte el email de confirmación en este momento."
+
 ### Resumen Sprint 4
 Fecha de ejecución: 07/07/2026.
-Cantidad total de pruebas del Sprint 4: 21 (Pruebas 55 a 75).
+Cantidad total de pruebas del Sprint 4: 22 (Pruebas 55 a 76).
 Cantidad de pruebas aprobadas: 21.
 Cantidad de pruebas fallidas: 0.
 
 ## Resumen general
-Cantidad total de pruebas: 75.
-Cantidad total de pruebas aprobadas: 75.
+Cantidad total de pruebas: 76.
+Cantidad total de pruebas aprobadas: 76.
 Cantidad total de pruebas fallidas: 0.

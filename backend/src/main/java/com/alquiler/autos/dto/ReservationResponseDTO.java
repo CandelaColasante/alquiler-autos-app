@@ -13,6 +13,7 @@ public class ReservationResponseDTO {
     private LocalDate endDate;
     private LocalDateTime createdAt;
     private String notes;
+    private boolean emailSent = true;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -40,4 +41,7 @@ public class ReservationResponseDTO {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
+    public boolean isEmailSent() { return emailSent; }
+    public void setEmailSent(boolean emailSent) { this.emailSent = emailSent; }
 }

@@ -3928,3 +3928,22 @@ small {
         margin-top: 180px;
     }
 }
+
+.reservation-email-notice {
+    background-color: #fff3f0;
+    border: 1px solid #eb5200;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #663300;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.reservation-email-notice i {
+    color: #eb5200;
+    flex-shrink: 0;
+    font-size: 18px;
+}

@@ -89,3 +89,6 @@ contraseña del usuario.
 - Mejoras de responsive design para compatibilidad con smartphones, tablets y escritorio.
 - Seguridad de credenciales de email mediante variables de entorno en lugar de valores hardcodeados.
 - Corrección del filtro de búsqueda por disponibilidad de fechas: al buscar por rango de fechas, el sistema consulta al backend qué productos tienen reservas que se superponen con el período seleccionado y los excluye de los resultados. Se corrigió además la lógica de superposición para usar comparaciones inclusivas (`<=` y `>=`), asegurando que productos con reservas en los bordes exactos del rango también sean excluidos correctamente.
+
+### Mejoras técnicas respecto al Sprint 4:
+- Manejo robusto del servicio de email: el envío del email de confirmación fue desacoplado del flujo principal de la reserva. Si el servicio de correo no está disponible o las credenciales no están configuradas, la reserva se crea igualmente y el usuario recibe un mensaje informativo claro indicando que la reserva fue exitosa pero el email no pudo enviarse. Además se agregó un valor por defecto vacío para las variables de entorno del email en `application.properties`, permitiendo que el backend arranque correctamente sin necesidad de tener las credenciales configuradas.

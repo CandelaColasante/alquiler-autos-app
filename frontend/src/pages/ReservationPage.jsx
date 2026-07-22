@@ -23,6 +23,7 @@ function ReservationPage({ user }) {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [reservationResult, setReservationResult] = useState(null);
 
     useEffect(() => {
         loadData();
@@ -64,12 +65,13 @@ function ReservationPage({ user }) {
 
         setSubmitting(true);
         try {
-            await createReservation(id, {
+            const result = await createReservation(id, {
                 userId: user.id,
                 startDate: format(start, 'yyyy-MM-dd'),
                 endDate: format(end, 'yyyy-MM-dd'),
                 notes: notes.trim() || null
             });
+            setReservationResult(result);
             setSuccess(true);
         } catch (err) {
             setError(err.message);
@@ -91,6 +93,11 @@ function ReservationPage({ user }) {
                         <strong>{format(dateRange[0].startDate, 'dd/MM/yyyy')}</strong> al{' '}
                         <strong>{format(dateRange[0].endDate, 'dd/MM/yyyy')}</strong>.
                     </p>
+                    {!reservationResult?.emailSent && (
+                        <p className="reservation-email-notice">
+                            <i className="fas fa-info-circle"></i> Tu reserva fue creada correctamente, pero no pudimos enviarte el email de confirmación en este momento.
+                        </p>
+                    )}
                     {notes && (
                         <p><strong>Comentarios:</strong> {notes}</p>
                     )}

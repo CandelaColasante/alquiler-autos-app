@@ -20,6 +20,10 @@ public class EmailService {
     private String fromEmail;
 
     public void sendReservationConfirmation(String toEmail, String userName, ReservationResponseDTO reservation) {
+        if (toEmail == null || toEmail.isEmpty() || fromEmail == null || fromEmail.isEmpty()) {
+            throw new RuntimeException("Configuración de email no disponible");
+        }
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -34,6 +38,7 @@ public class EmailService {
             mailSender.send(message);
         } catch (MessagingException e) {
             System.err.println("Error al enviar email: " + e.getMessage());
+            throw new RuntimeException("Error al enviar email: " + e.getMessage());
         }
     }
 
